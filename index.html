@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cosmic Surge | start.ng</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" type="image/png" href="./cover.png">
+</head>
+<body>
+  <!-- start.ng Profile Card as specified in docs -->
+  <div class="startng-card" id="player-card">
+    <img id="player-face" alt="Character" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%236366f1'/%3E%3Ctext x='20' y='25' font-size='16' text-anchor='middle' fill='%23ffffff'%3E🚀%3C/text%3E%3C/svg%3E">
+    <div class="player-info">
+      <b id="player-name">Cosmic Explorer</b>
+      <span id="player-account">Connecting...</span>
+    </div>
+    <button id="player-sign-in" type="button">Sign in</button>
+  </div>
+
+  <!-- Top Right Menu -->
+  <div class="top-menu">
+    <button id="btn-leaderboard" class="glass-btn" title="Leaderboard">🏆 Board</button>
+    <button id="btn-audio" class="glass-btn" title="Toggle Sound">🔊 Sound</button>
+    <button id="btn-help" class="glass-btn" title="Controls">❓ Help</button>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hud-layer hidden">
+    <div class="hud-top">
+      <div class="hud-stat">
+        <span class="hud-label">SCORE</span>
+        <span id="hud-score" class="hud-val">0</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">SECTOR</span>
+        <span id="hud-wave" class="hud-val">1</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">CRYSTALS</span>
+        <span id="hud-crystals" class="hud-val">0</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">MULTIPLIER</span>
+        <span id="hud-mult" class="hud-val highlight">x1.0</span>
+      </div>
+    </div>
+
+    <!-- Surge Energy Bar -->
+    <div class="surge-container">
+      <div class="surge-label">SURGE DRIVE [SPACE / TAP]</div>
+      <div class="surge-track">
+        <div id="surge-fill" class="surge-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Active Powerups -->
+    <div id="hud-buffs" class="hud-buffs"></div>
+  </div>
+
+  <!-- Game Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Title / Start Screen Overlay -->
+  <div id="start-overlay" class="screen-overlay">
+    <div class="glass-modal">
+      <div class="game-badge">START.NG COMMUNITY GAME</div>
+      <h1 class="game-title">COSMIC<span class="surge-text">SURGE</span></h1>
+      <p class="game-tagline">Navigate the hazards of deep space. Collect crystals, trigger Hyper Surge, and conquer the galaxy!</p>
+
+      <div class="character-preview-box">
+        <canvas id="preview-canvas" width="120" height="120"></canvas>
+        <div class="char-meta">
+          <span id="preview-name" class="char-name">Cosmic Explorer</span>
+          <span id="preview-desc" class="char-role">start.ng Character</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="btn-start" class="btn-primary">LAUNCH EXPEDITION</button>
+        <button id="btn-open-board" class="btn-secondary">LEADERBOARD</button>
+      </div>
+
+      <div class="controls-hint">
+        <span>Desktop: <b>Arrow Keys</b> / <b>WASD</b> to maneuver &bull; <b>SPACE</b> for Surge</span><br>
+        <span>Mobile: <b>Drag Screen</b> to guide &bull; <b>Tap Surge Button</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Screen Overlay -->
+  <div id="gameover-overlay" class="screen-overlay hidden">
+    <div class="glass-modal">
+      <h2 class="gameover-title">VESSEL OFFLINE</h2>
+      <p id="gameover-reason" class="gameover-desc">Collided with an asteroid field</p>
+
+      <div class="run-stats-grid">
+        <div class="run-stat-card">
+          <span class="stat-num" id="final-score">0</span>
+          <span class="stat-name">Total Score</span>
+        </div>
+        <div class="run-stat-card">
+          <span class="stat-num" id="final-wave">1</span>
+          <span class="stat-name">Sector Reached</span>
+        </div>
+        <div class="run-stat-card">
+          <span class="stat-num" id="final-crystals">0</span>
+          <span class="stat-name">Crystals Mined</span>
+        </div>
+      </div>
+
+      <div id="score-status" class="score-status">Connecting to start.ng leaderboard...</div>
+
+      <div class="action-buttons">
+        <button id="btn-restart" class="btn-primary">RELAUNCH VESSEL</button>
+        <button id="btn-modal-board" class="btn-secondary">VIEW RANKINGS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal" class="screen-overlay modal-backdrop hidden">
+    <div class="glass-modal modal-wide">
+      <div class="modal-header">
+        <h2>🏆 GALAXY LEADERBOARD</h2>
+        <button id="btn-close-board" class="close-btn">&times;</button>
+      </div>
+      <p class="modal-sub">Top cosmic explorers powered by start.ng</p>
+
+      <div class="board-table-container">
+        <table class="board-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Explorer</th>
+              <th>Score</th>
+              <th>Sector</th>
+              <th>Crystals</th>
+            </tr>
+          </thead>
+          <tbody id="board-tbody">
+            <tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching rankings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="board-footer-tip" class="board-footer-tip">
+        Sign in with start.ng to record your highest run on the global board!
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Touch Controls -->
+  <div id="mobile-controls" class="mobile-controls hidden">
+    <button id="mobile-surge-btn" class="mobile-surge-btn">SURGE!</button>
+  </div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

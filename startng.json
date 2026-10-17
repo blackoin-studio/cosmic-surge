@@ -1,0 +1,9 @@
+{
+  "leaderboard": {
+    "stats": [
+      { "key": "score", "label": "Score", "order": "highest" },
+      { "key": "wave", "label": "Wave", "order": "highest" },
+      { "key": "crystals", "label": "Crystals", "order": "highest" }
+    ]
+  }
+}
